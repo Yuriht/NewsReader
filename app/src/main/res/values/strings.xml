@@ -1,10 +1,7 @@
 <resources>
     <string name="app_name">News Reader</string>
-    <string name="list_refresh_error_text">Ошибка обновления ленты</string>
+    <string name="list_refresh_error_text">Ошибка обновления</string>
     <string name="menu_refresh_str">Обновить</string>
     <string name="menu_clear_str">Очистить</string>
     <string name="menu_open_external_str">Открыть в браузере</string>
-    <string name="toast_refresh_msg">Обновление</string>
-    <string name="toast_done_msg">Готово</string>
-    <string name="toast_done_with_err_msg">Готово с ошибкой</string>
 </resources>

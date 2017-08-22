@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
 				mainFragment.LoadRssList();
-				Toast.makeText(this, R.string.toast_refresh_msg, Toast.LENGTH_SHORT).show();
 				return true;
 			case R.id.menu_clearDB:
 				db.deleteAllItems();

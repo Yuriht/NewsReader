@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.kuzmych.newsreader.Adapters.NewsAdapter;
@@ -39,6 +40,7 @@ public class MainFragment extends Fragment {
 
 	private MainActivity mainActivity;
 	private View this_view;
+	private ProgressBar progressBar;
 
 	private RecyclerView recyclerView;
 	private NewsAdapter newsAdapter;
@@ -62,6 +64,7 @@ public class MainFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		this_view = inflater.inflate(R.layout.fragment_main, container, false);
+		progressBar = (ProgressBar) this_view.findViewById(R.id.progressBar);
 
 		//Init List
 		recyclerView = (RecyclerView) this_view.findViewById(R.id.recycler_view);
@@ -87,6 +90,8 @@ public class MainFragment extends Fragment {
 
 
 	public void LoadRssList(){
+		progressBar.setVisibility(View.VISIBLE);
+
 		Call<RSSFeed> call = korrAPI.loadRSSFeed();
 		call.enqueue(new Callback<RSSFeed>() {
 						 @Override
@@ -95,14 +100,21 @@ public class MainFragment extends Fragment {
 								 RSSFeed rss = response.body();
 								 SaveDB(rss.getRssList());
 								 UpdateList();
+								 progressBar.setVisibility(View.GONE);
 							 } else {
-								 UpdateListError(response.code()+" "+response.message());
+								 //Show Error
+								 progressBar.setVisibility(View.GONE);
+								 Toast.makeText(this_view.getContext(), getString(R.string.list_refresh_error_text), Toast.LENGTH_SHORT).show();
+								 Toast.makeText(this_view.getContext(), response.code()+" "+response.message(), Toast.LENGTH_LONG).show();
 							 }
 						 }
 
 						 @Override
 						 public void onFailure(Call<RSSFeed> call, Throwable t) {
-							 UpdateListError(t.getMessage());
+							 //Show Error
+							 progressBar.setVisibility(View.GONE);
+							 Toast.makeText(this_view.getContext(), getString(R.string.list_refresh_error_text), Toast.LENGTH_SHORT).show();
+							 Toast.makeText(this_view.getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
 							 //t.printStackTrace();
 						 }
 					 }
@@ -111,15 +123,13 @@ public class MainFragment extends Fragment {
 
 	// Saving new items to DB
 	private void SaveDB(List<RSSItem> rssList) {
+		String str;
+		String find;
 		for (int i=rssList.size()-1; i>=0; i--){
 			//check for guid exist
 			if (! mainActivity.db.GuidExist(rssList.get(i).getGuid())) {
-
-				//parse some fields before save
-				String str;
-				String find;
-
-				//Date to Long
+				//parse some fields before Save
+				//Date format
 				str = rssList.get(i).getPubDate();
 				Date date = new Date();
 				DateFormat format_in = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
@@ -131,7 +141,7 @@ public class MainFragment extends Fragment {
 				}
 				rssList.get(i).setPubDate(String.valueOf(format_out.format(date)));
 
-				//Image field - get src="" from: <img align="left" vspace="5" hspace="10" src="http://kor.ill.in.ua/m/190x120/2050181.jpg">
+				//Image field - get link from: <img align="left" vspace="5" hspace="10" src="http://kor.ill.in.ua/m/190x120/2050181.jpg">
 				str = rssList.get(i).getImage();
 				find = "src=\"";
 				rssList.get(i).setImage(str.substring(str.indexOf(find) + find.length(), str.lastIndexOf("\"")));
@@ -151,18 +161,6 @@ public class MainFragment extends Fragment {
 	public void UpdateList() {
 		newsList.clear();
 		newsList.addAll(mainActivity.db.getAllItems());
-		Toast.makeText(this_view.getContext(), R.string.toast_done_msg, Toast.LENGTH_SHORT).show();
-		recyclerView.scrollToPosition(0);
-		newsAdapter.notifyDataSetChanged();
-	}
-
-	//Show Error Text in List
-	public void UpdateListError(String additional_info){
-		RSSItem error_item = new RSSItem(-1, getString(R.string.list_refresh_error_text), "", additional_info, "", "", "", "");
-		newsList.clear();
-		newsList.add(error_item);
-		newsList.addAll(mainActivity.db.getAllItems());
-		Toast.makeText(this_view.getContext(), R.string.toast_done_with_err_msg, Toast.LENGTH_SHORT).show();
 		recyclerView.scrollToPosition(0);
 		newsAdapter.notifyDataSetChanged();
 	}
