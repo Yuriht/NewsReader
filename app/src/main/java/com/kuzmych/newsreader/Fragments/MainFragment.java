@@ -99,13 +99,14 @@ public class MainFragment extends Fragment {
 							 if (response.isSuccessful()) {
 								 RSSFeed rss = response.body();
 								 SaveDB(rss.getRssList());
-								 UpdateList();
 								 progressBar.setVisibility(View.GONE);
+								 UpdateList();
 							 } else {
 								 //Show Error
 								 progressBar.setVisibility(View.GONE);
 								 Toast.makeText(this_view.getContext(), getString(R.string.list_refresh_error_text), Toast.LENGTH_SHORT).show();
 								 Toast.makeText(this_view.getContext(), response.code()+" "+response.message(), Toast.LENGTH_LONG).show();
+								 UpdateList();
 							 }
 						 }
 
@@ -116,6 +117,7 @@ public class MainFragment extends Fragment {
 							 Toast.makeText(this_view.getContext(), getString(R.string.list_refresh_error_text), Toast.LENGTH_SHORT).show();
 							 Toast.makeText(this_view.getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
 							 //t.printStackTrace();
+							 UpdateList();
 						 }
 					 }
 		);

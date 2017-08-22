@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.kuzmych.newsreader.DB.SQLiteDatabaseHandler;
 import com.kuzmych.newsreader.Fragments.DetailsFragment;
